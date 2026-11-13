@@ -85,6 +85,13 @@ func TestMenuBarClosesOnAlt(t *testing.T) {
 	if !openMenus(w, 0) {
 		t.Skip("the window cannot come to the front, where the keyboard types")
 	}
+	// openMenus returns before the bar takes the keyboard: a Down pressed
+	// before its menu loop begins goes to the window.
+	eventually(t, "the keyboard in the menu bar", func() bool {
+		in := false
+		mygo.RunOnMain(func() { in = win.TestInMenu(w.NativeHandle()) })
+		return in
+	})
 	// A Down in the bar opens its first menu, a menu of Windows'.
 	mygo.RunOnMain(func() { win.TestPressKeys(0x28) }) // VK_DOWN
 	eventually(t, "the first menu of the bar open", func() bool { menus, _ := popupMenus(); return len(menus) > 0 })
