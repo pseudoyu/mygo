@@ -43,6 +43,10 @@ func TestPanel(t *testing.T) {
 	deactivated := deactivateApp()
 	if deactivated {
 		eventually(t, "the app deactivated", func() bool { active, _ := appActive(); return !active })
+		// The Finder can be frontmost before AppKit has told the app that it
+		// resigned active: a panel shown before that is the key window of an
+		// active app, and no longer once the app hears of it.
+		eventually(t, "the app told that it resigned active", func() bool { return !mygo.App.IsActive() })
 	}
 	panel.Show()
 	eventually(t, "the panel focused", panel.IsFocused)
